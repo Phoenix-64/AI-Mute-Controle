@@ -1,9 +1,10 @@
 import cv2
 import mediapipe as mp
 import  time
+import math
 
 class handDetector():
-    def __init__(self, mode=False, maxHands = 1, detectionCon=0.7, trackCon=0.7):
+    def __init__(self, mode=False, maxHands = 2, detectionCon=0.7, trackCon=0.7):
         self.mode = mode
         self.maxHands = maxHands
         self.detectionCon = detectionCon
@@ -24,24 +25,49 @@ class handDetector():
         return img
 
     def findPosition(self, img, handNo=0, draw=True):
-
-        lmList = []
+        xList = []
+        yList = []
+        bbox = []
+        self.lmList = []
 
         if self.results.multi_hand_landmarks:
-            myHand = self.results.multi_hand_landmarks[handNo]
-            h, w, c = img.shape
+            if len(self.results.multi_hand_landmarks) == 1:
+                myHand = self.results.multi_hand_landmarks[handNo]
 
-            for id, lm in enumerate(myHand.landmark):
+                h, w, c = img.shape
 
-                cx, cy = int(lm.x * w), int(lm.y * h)
-                lmList.append([id, cx, cy])
+                for id, lm in enumerate(myHand.landmark):
+
+                    cx, cy = int(lm.x * w), int(lm.y * h)
+                    self.lmList.append([id, cx, cy])
+                    xList.append(cx)
+                    yList.append(cy)
+                    if draw:
+                        cv2.circle(img, (cx, cy), 5, [255, 0, 255], cv2.FILLED)
+                xmin, xmax = min(xList), max(xList)
+                ymin, ymax = min(yList), max(yList)
+                bbox = xmin, ymin, xmax, ymax
+
                 if draw:
-                    cv2.circle(img, (cx, cy), 10, [255, 0, 255], cv2.FILLED)
-
-        return lmList
+                    cv2.rectangle(img, (xmin - 10, ymin - 10), (xmax + 10, ymax + 10), (0, 255, 0), 5)
 
 
+        return self.lmList, bbox
 
+    def findDistance(self, img, p1, p2, draw=True):
+        x1, y1 = self.lmList[p1][1], self.lmList[p1][2]
+        x2, y2 = self.lmList[p2][1], self.lmList[p2][2]
+        cx, cy = (x1 + x2) // 2, (y1 + y2) // 2
+
+        if draw:
+            cv2.circle(img, (x1, y1), 15, (255, 0, 255), cv2.FILLED)
+            cv2.circle(img, (x2, y2), 15, (255, 0, 255), cv2.FILLED)
+            cv2.line(img, (x1, y1), (x2, y2), (255, 0, 255), 3)
+            cv2.circle(img, (cx, cy), 15, (255, 0, 255), cv2.FILLED)
+
+        length = math.hypot(x2 - x1, y2 - y1)
+
+        return length, img, [x1, y1, x2, y2, cx, cy]
 
 def main():
     cap = cv2.VideoCapture(0)
