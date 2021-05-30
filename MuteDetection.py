@@ -1,9 +1,6 @@
 import cv2
 import time
-import math
-import numpy as np
 import HandTrackingModule as htm
-import pandas as pd
 import statistics
 import voicemeeter
 
@@ -28,6 +25,7 @@ averages = []
 send = False
 fingers = [8, 12, 16, 20]
 area = 0
+
 while True:
     sucsess, img = cap.read()
 
@@ -45,13 +43,10 @@ while True:
                 for i in fingers:
                     lengths = []
                     length, img, pointData = detector.findDistance(img, 0, i, draw=False)
-                    # print(length)
                     lengths.append(length)
 
                 averages.append(statistics.mean(lengths))
-                # print(statistics.mean(lengths))
                 if len(averages) > 10:
-                    #print(statistics.mean(averages))
 
                     if 50 < statistics.mean(averages) < 200:
                         vmr.inputs[0].mute = True
@@ -66,12 +61,10 @@ while True:
         send = False
         averages = []
 
-
-
     cTime = time.time()
     fps = 1 / (cTime - pTime)
     pTime = cTime
     cv2.putText(img, str(int(fps)), (10, 70), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 255), 3)
 
-    #cv2.imshow("Img", img)
+    # cv2.imshow("Img", img)
     cv2.waitKey(1)

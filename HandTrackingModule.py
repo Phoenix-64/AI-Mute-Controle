@@ -1,10 +1,11 @@
 import cv2
 import mediapipe as mp
-import  time
+import time
 import math
 
+
 class handDetector():
-    def __init__(self, mode=False, maxHands = 2, detectionCon=0.7, trackCon=0.7):
+    def __init__(self, mode=False, maxHands=2, detectionCon=0.7, trackCon=0.7):
         self.mode = mode
         self.maxHands = maxHands
         self.detectionCon = detectionCon
@@ -51,7 +52,6 @@ class handDetector():
                 if draw:
                     cv2.rectangle(img, (xmin - 10, ymin - 10), (xmax + 10, ymax + 10), (0, 255, 0), 5)
 
-
         return self.lmList, bbox
 
     def findDistance(self, img, p1, p2, draw=True):
@@ -69,10 +69,10 @@ class handDetector():
 
         return length, img, [x1, y1, x2, y2, cx, cy]
 
+
 def main():
     cap = cv2.VideoCapture(0)
     pTime = 0
-    cTime = 0
 
     detector = handDetector()
 
@@ -80,22 +80,18 @@ def main():
         sucsess, img = cap.read()
 
         img = detector.findHands(img)
-        lmList =  detector.findPosition(img)
+        lmList = detector.findPosition(img)
         if len(lmList) != 0:
             print(lmList[4])
 
-
         cTime = time.time()
-        fps = 1/(cTime-pTime)
+        fps = 1 / (cTime - pTime)
         pTime = cTime
 
-        cv2.putText(img, str(int(fps)), (10,70), cv2.FONT_HERSHEY_PLAIN, 3, (255,0,255), 3)
+        cv2.putText(img, str(int(fps)), (10, 70), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 255), 3)
 
         cv2.imshow("Image", img)
         cv2.waitKey(1)
-
-
-
 
 
 if __name__ == "__main__":
