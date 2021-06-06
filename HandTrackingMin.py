@@ -1,7 +1,9 @@
 import cv2
 import mediapipe as mp
 import time
-
+"""
+Experimentation file. 
+"""
 cap = cv2.VideoCapture(0)
 
 mpHands = mp.solutions.hands

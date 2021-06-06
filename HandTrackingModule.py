@@ -3,8 +3,15 @@ import mediapipe as mp
 import time
 import math
 
-
+"""
+Main class housing de detector and landmark processing functions. Import tis for use in another file.
+"""
 class handDetector():
+
+    """
+    Setting up the tracking parameters as well as starting the tracking. and drawing.
+    """
+
     def __init__(self, mode=False, maxHands=2, detectionCon=0.7, trackCon=0.7):
         self.mode = mode
         self.maxHands = maxHands
@@ -15,6 +22,10 @@ class handDetector():
         self.hands = self.mpHands.Hands(self.mode, self.maxHands, self.detectionCon, self.trackCon)
         self.mpDraw = mp.solutions.drawing_utils
 
+
+    """
+    imports and transforms the image into the rigth colour space and then tries to find the hand landmarks.
+    """
     def findHands(self, img, draw=True):
         imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         self.results = self.hands.process(imgRGB)
@@ -25,6 +36,9 @@ class handDetector():
                     self.mpDraw.draw_landmarks(img, handLms, self.mpHands.HAND_CONNECTIONS)
         return img
 
+    """
+    extracts the position fo the handmarks and translates them to a pixel coordanet space. It also computes a boundign box.
+    """
     def findPosition(self, img, handNo=0, draw=True):
         xList = []
         yList = []
@@ -54,6 +68,11 @@ class handDetector():
 
         return self.lmList, bbox
 
+
+
+    """
+    Returns the distance between the points p1 and p2 wich are landmarks.
+    """
     def findDistance(self, img, p1, p2, draw=True):
         x1, y1 = self.lmList[p1][1], self.lmList[p1][2]
         x2, y2 = self.lmList[p2][1], self.lmList[p2][2]
@@ -69,7 +88,9 @@ class handDetector():
 
         return length, img, [x1, y1, x2, y2, cx, cy]
 
-
+"""
+A example implementation on the tracking.
+"""
 def main():
     cap = cv2.VideoCapture(0)
     pTime = 0
